@@ -19,4 +19,4 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
-[assembly: InternalsVisibleTo("Microsoft.DotNet.CodeFormatting.Tests")]
+//[assembly: InternalsVisibleTo("Microsoft.DotNet.CodeFormatting.Tests")]

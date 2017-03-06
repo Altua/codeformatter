@@ -375,5 +375,10 @@ namespace Microsoft.DotNet.CodeFormatting
 
             return solution;
         }
+
+        public async Task FormatDocumentsAsync(Workspace workspace, IReadOnlyList<DocumentId> documentIds, CancellationToken cancellationToken)
+        {
+            await FormatAsync(workspace, documentIds, cancellationToken);
+        }
     }
 }

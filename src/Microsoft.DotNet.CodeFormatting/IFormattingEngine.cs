@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 using Microsoft.CodeAnalysis;
 using System.Collections.Immutable;
+using System.Collections.Generic;
 
 namespace Microsoft.DotNet.CodeFormatting
 {
@@ -22,5 +23,6 @@ namespace Microsoft.DotNet.CodeFormatting
         void ToggleRuleEnabled(IRuleMetadata ruleMetaData, bool enabled);
         Task FormatSolutionAsync(Solution solution, CancellationToken cancellationToken);
         Task FormatProjectAsync(Project project, CancellationToken cancellationToken);
+        Task FormatDocumentsAsync(Workspace workspace, IReadOnlyList<DocumentId> documentIds, CancellationToken cancellationToken);
     }
 }

@@ -86,6 +86,9 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
                 Path.GetDirectoryName(Uri.UnescapeDataString(new UriBuilder(Assembly.GetExecutingAssembly().CodeBase).Path)),
                 "IllegalHeaders.md");
 
+            if (!File.Exists(filePath))
+                return new string[] { };
+
             var illegalHeaders = new HashSet<string>(File.ReadAllLines(filePath).Where(l => !l.StartsWith("##") && !l.Equals("")), StringComparer.OrdinalIgnoreCase);
 
             // Generate the dynamic header (if applicable)
