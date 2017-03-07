@@ -38,14 +38,16 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
                 
                 var result = node.ReplaceNodes(children, (_, n) =>
                 {
-                    return CleanTrivia(t[n].Node);
+                    return UnwrapAndClean(t[n]);
                 });
 
                 return result;
             }
 
-            private SyntaxNode CleanTrivia(SyntaxNode node)
+            private SyntaxNode UnwrapAndClean(ComparableNode comparableNode)
             {
+                var node = comparableNode.Node;
+
                 if (!node.HasLeadingTrivia)
                     return node;
 
@@ -58,7 +60,8 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
                     trivia = trivia.Remove(t);
                 }
 
-                trivia = trivia.Insert(0, SyntaxFactory.EndOfLine("\r\n"));
+                if(comparableNode.Section != CodeSections.PrivateField || comparableNode.Section != CodeSections.PrivateReadonlyField)
+                    trivia = trivia.Insert(0, SyntaxFactory.EndOfLine("\r\n"));
 
                 return node.WithLeadingTrivia(trivia);
                 
@@ -67,11 +70,12 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
             private static class CodeSections
             {
                 public static int Unknown = 0;
-                public static int PrivateField = 1;
-                public static int Constructor = 2;
-                public static int PrivateMethod = 3;
-                public static int PublicMethod = 4;
-                public static int Class = 10;
+                public static int PrivateReadonlyField = 5;
+                public static int PrivateField = 6;
+                public static int Constructor = 10;
+                public static int PrivateMethod = 21;
+                public static int PublicMethod = 22;
+                public static int Class = 30;
             }
 
             private class ComparableNode:IComparable<ComparableNode>
@@ -80,6 +84,8 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
 
                 //TODO section should probably be a class so we can support explicit interfaces etc
                 private int _section = 0;
+
+                public int Section => _section;
 
                 public SyntaxNode Node { get; }
 
@@ -92,6 +98,9 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
                     {
                         _text = field.Declaration.ToString();
                         _section = CodeSections.PrivateField;
+
+                        if (field.Modifiers.Any(x => x.IsKind(SyntaxKind.ReadOnlyKeyword)))
+                            _section = CodeSections.PrivateReadonlyField;
                     }
 
                     var ctor = node as ConstructorDeclarationSyntax;

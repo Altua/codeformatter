@@ -30,9 +30,7 @@ public class TestClass
             var expected = @"using System;
 public class TestClass
 {
-
     private bool _a;
-
     private bool _b;
 }
 ";
@@ -65,7 +63,6 @@ public class TestClass
             var expected = @"using System;
 public class TestClass
 {
-
     private bool _a;
 
     public TestClass()
@@ -103,12 +100,10 @@ public class TestClass
             var expected = @"using System;
 public class TestClass
 {
-
     /// <summary>
     /// Test comment
     /// </summary>
     private bool _a;
-
     private bool _b;
 }
 ";
