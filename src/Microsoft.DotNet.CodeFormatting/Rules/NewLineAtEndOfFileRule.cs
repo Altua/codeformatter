@@ -8,9 +8,12 @@ using System.Threading.Tasks;
 
 namespace Microsoft.DotNet.CodeFormatting.Rules
 {
-    [SyntaxRule(SyntaxRuleOrder.NewLineAtEndOfFileRule)]
+    [SyntaxRule(NewLineAtEndOfFileRule.Name, NewLineAtEndOfFileRule.Description, SyntaxRuleOrder.NewLineAtEndOfFileRule)]
     internal sealed class NewLineAtEndOfFileRule : CSharpOnlyFormattingRule, ISyntaxFormattingRule
     {
+        internal const string Name = "NewLineAtEndOfFileRule";
+        internal const string Description = "Ensure new line at end of file";
+
         public SyntaxNode Process(SyntaxNode syntaxRoot, string languageName)
         {
             bool needsNewLine;
