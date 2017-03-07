@@ -1,5 +1,6 @@
-﻿// Copyright (c) Microsoft. All rights reserved.
-// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+// See the LICENSE file in the project root for more information.
 
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -107,6 +108,21 @@ namespace Microsoft.DotNet.CodeFormatting
         internal static bool IsAnyEndOfLine(this SyntaxTrivia trivia)
         {
             return trivia.IsKind(SyntaxKind.EndOfLineTrivia) || trivia.IsDirective;
+        }
+
+        /// <summary>
+        /// Find the node directly before this in the parent.  Returns null in the case it 
+        /// cannot be found.
+        /// </summary>
+        internal static SyntaxNode FindPreviousNodeInParent(this SyntaxNode node)
+        {
+            var parent = node.Parent;
+            if (parent == null)
+            {
+                return null;
+            }
+
+            return parent.ChildNodes().Where(x => x.FullSpan.End == node.FullSpan.Start).FirstOrDefault();
         }
     }
 }

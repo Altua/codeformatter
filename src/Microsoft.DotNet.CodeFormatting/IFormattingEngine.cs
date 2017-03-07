@@ -1,5 +1,6 @@
-// Copyright (c) Microsoft. All rights reserved.
-// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+// See the LICENSE file in the project root for more information.
 
 using System;
 using System.Threading;
@@ -7,6 +8,7 @@ using System.Threading.Tasks;
 
 using Microsoft.CodeAnalysis;
 using System.Collections.Immutable;
+using System.Collections.Generic;
 
 namespace Microsoft.DotNet.CodeFormatting
 {
@@ -15,11 +17,12 @@ namespace Microsoft.DotNet.CodeFormatting
         ImmutableArray<string> CopyrightHeader { get; set; }
         ImmutableArray<string[]> PreprocessorConfigurations { get; set; }
         ImmutableArray<string> FileNames { get; set; }
+        ImmutableArray<IRuleMetadata> AllRules { get; }
         bool AllowTables { get; set; }
-        bool ConvertUnicodeCharacters { get; set; }
         bool Verbose { get; set; }
-        FormattingLevel FormattingLevel { get; set; }
+        void ToggleRuleEnabled(IRuleMetadata ruleMetaData, bool enabled);
         Task FormatSolutionAsync(Solution solution, CancellationToken cancellationToken);
-        Task FormatProjectAsync(Project porject, CancellationToken cancellationToken);
+        Task FormatProjectAsync(Project project, CancellationToken cancellationToken);
+        Task FormatDocumentsAsync(Workspace workspace, IReadOnlyList<DocumentId> documentIds, CancellationToken cancellationToken);
     }
 }

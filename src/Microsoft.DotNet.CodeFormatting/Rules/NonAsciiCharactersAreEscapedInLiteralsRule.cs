@@ -1,5 +1,6 @@
-﻿// Copyright (c) Microsoft. All rights reserved.
-// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+// See the LICENSE file in the project root for more information.
 
 using System;
 using System.ComponentModel.Composition;
@@ -14,24 +15,14 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Microsoft.DotNet.CodeFormatting.Rules
 {
-    [SyntaxRule(SyntaxRuleOrder.NonAsciiChractersAreEscapedInLiterals)]
+    [SyntaxRule(NonAsciiCharactersAreEscapedInLiterals.Name, NonAsciiCharactersAreEscapedInLiterals.Description, SyntaxRuleOrder.NonAsciiChractersAreEscapedInLiterals)]
     internal sealed class NonAsciiCharactersAreEscapedInLiterals : CSharpOnlyFormattingRule, ISyntaxFormattingRule
     {
-        private readonly Options _options;
-
-        [ImportingConstructor]
-        internal NonAsciiCharactersAreEscapedInLiterals(Options options)
-        {
-            _options = options;
-        }
+        internal const string Name = FormattingDefaults.UnicodeLiteralsRuleName;
+        internal const string Description = "Use unicode escape sequence instead of unicode literals";
 
         public SyntaxNode Process(SyntaxNode root, string languageName)
         {
-            if (!_options.ConvertUnicodeCharacters)
-            {
-                return root;
-            }
-
             return UnicodeCharacterEscapingSyntaxRewriter.Rewriter.Visit(root);
         }
 

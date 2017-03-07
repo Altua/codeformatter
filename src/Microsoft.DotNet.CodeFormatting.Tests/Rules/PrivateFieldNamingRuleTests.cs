@@ -1,5 +1,6 @@
-﻿// Copyright (c) Microsoft. All rights reserved.
-// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+// See the LICENSE file in the project root for more information.
 
 using Microsoft.CodeAnalysis;
 using Xunit;
@@ -13,7 +14,7 @@ namespace Microsoft.DotNet.CodeFormatting.Tests
             get { return new Rules.PrivateFieldNamingRule(); }
         }
 
-        private sealed class CSharpFields : PrivateFieldNamingRuleTests
+        public sealed class CSharpFields : PrivateFieldNamingRuleTests
         {
             [Fact]
             public void TestUnderScoreInPrivateFields()
@@ -214,7 +215,7 @@ class C
             }
         }
 
-        private sealed class VisualBasicFields : PrivateFieldNamingRuleTests
+        public sealed class VisualBasicFields : PrivateFieldNamingRuleTests
         {
             [Fact]
             public void Simple()
@@ -312,6 +313,47 @@ Class C1
 End Class";
 
                 Verify(text, expected, languageName: LanguageNames.VisualBasic);
+            }
+
+            [Fact]
+            public void FieldMarkedWithEvents()
+            {   // See:  https://github.com/dotnet/codeformatter/issues/216
+
+                var text = @"
+Class C1
+    Private Field WithEvents As Integer
+End Class";
+
+                var expected = @"
+Class C1
+    Private _field WithEvents As Integer
+End Class";
+
+                Verify(text, expected, languageName: LanguageNames.VisualBasic);
+            }
+
+            [Fact]
+            public void RemoveTwoLetterThreadStaticPrefix()
+            {
+                var text = @"
+class C
+{
+    int ts_instance;
+    static int ts_Static;
+    [System.ThreadStatic]static int ts_ThreadStatic;
+}
+";
+
+                var expected = @"
+class C
+{
+    int _instance;
+    static int s_static;
+    [System.ThreadStatic]static int t_threadStatic;
+}
+";
+
+                Verify(text, expected, runFormatter: false);
             }
         }
     }

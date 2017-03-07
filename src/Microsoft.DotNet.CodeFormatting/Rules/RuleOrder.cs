@@ -1,5 +1,6 @@
-﻿// Copyright (c) Microsoft. All rights reserved.
-// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+// See the LICENSE file in the project root for more information.
 
 using System;
 using System.Collections.Generic;
@@ -13,12 +14,12 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
     internal static class SyntaxRuleOrder
     {
         public const int HasNoCustomCopyrightHeaderFormattingRule = 1;
-        public const int CopyrightHeaderRule = 2;
-        public const int UsingLocationFormattingRule = 3;
-        public const int NewLineAboveFormattingRule = 4;
-        public const int NewLineAtEndOfFileRule = 5;
-        public const int BraceNewLineRule = 6;
-        public const int NonAsciiChractersAreEscapedInLiterals = 7;
+        public const int UsingLocationFormattingRule = 2;
+        public const int NewLineAboveFormattingRule = 3;
+        public const int NewLineAtEndOfFileRule = 4;
+        public const int BraceNewLineRule = 5;
+        public const int NonAsciiChractersAreEscapedInLiterals = 6;
+        public const int CopyrightHeaderRule = 7;
     }
 
     // Please keep these values sorted by number, not rule name.    

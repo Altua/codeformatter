@@ -1,5 +1,6 @@
-﻿// Copyright (c) Microsoft. All rights reserved.
-// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+// See the LICENSE file in the project root for more information.
 
 using System;
 using System.Collections.Generic;
@@ -126,7 +127,7 @@ class C1
 
     void M()
     {
-        _field /* comment 2 */ = 0;
+         /* comment1 */ _field /* comment 2 */ = 0;
         // before comment
         _field = 42;
         // after comment

@@ -1,5 +1,6 @@
-﻿// Copyright (c) Microsoft. All rights reserved.
-// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+// See the LICENSE file in the project root for more information.
 
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -58,8 +59,8 @@ namespace NS1
             var text = @"#pragma warning disable 1591
 using System;";
 
-            var expected = @"
-#pragma warning disable 1591
+            var expected = @"#pragma warning disable 1591
+
 using System;";
 
             Verify(text, expected);
@@ -158,8 +159,8 @@ using System;
 ";
             var expected = @"
 // copyright comment
-
 #pragma warning disable 1591
+
 using System;
 ";
             Verify(text, expected);
@@ -228,6 +229,7 @@ namespace N { }
 using System;
 
 #pragma warning disable 1591
+
 namespace N { }
 ";
             Verify(text, expected);
@@ -244,6 +246,24 @@ namespace N { }
 namespace N { }
 ";
             Verify(text, text);
+        }
+
+        [Fact]
+        public void Issue83()
+        {
+            var text = @"
+extern alias PDB;
+using System;
+namespace N { }";
+
+            var expected = @"
+extern alias PDB;
+
+using System;
+
+namespace N { }";
+
+            Verify(text, expected);
         }
     }
 }

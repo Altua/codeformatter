@@ -1,5 +1,6 @@
-﻿// Copyright (c) Microsoft. All rights reserved.
-// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+// See the LICENSE file in the project root for more information.
 
 using System;
 using System.Collections.Generic;
@@ -10,37 +11,43 @@ using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Xunit;
 using System.Collections.Immutable;
+using Microsoft.DotNet.CodeFormatting.Rules;
 
 namespace Microsoft.DotNet.CodeFormatting.Tests
 {
     /// <summary>
     /// A test which runs all rules on a given piece of code 
     /// </summary>
-    public sealed class CombinationTest : CodeFormattingTestBase, IDisposable
+    public sealed class CombinationTest : CodeFormattingTestBase
     {
-        private static FormattingEngineImplementation s_formattingEngine;
-
-        static CombinationTest()
-        {
-            s_formattingEngine = (FormattingEngineImplementation)FormattingEngine.Create(ImmutableArray<string>.Empty);
-        }
+        private FormattingEngineImplementation _formattingEngine;
 
         public CombinationTest()
         {
-            s_formattingEngine.CopyrightHeader = ImmutableArray.Create("// header");
-            s_formattingEngine.AllowTables = true;
-            s_formattingEngine.FormatLogger = new EmptyFormatLogger();
-            s_formattingEngine.PreprocessorConfigurations = ImmutableArray<string[]>.Empty;
+            _formattingEngine = (FormattingEngineImplementation)FormattingEngine.Create();
+            _formattingEngine.CopyrightHeader = ImmutableArray.Create("// header");
+            _formattingEngine.AllowTables = true;
+            _formattingEngine.FormatLogger = new EmptyFormatLogger();
+            _formattingEngine.PreprocessorConfigurations = ImmutableArray<string[]>.Empty;
         }
 
-        public void Dispose()
+        private void DisableAllRules()
         {
-            s_formattingEngine.AllowTables = false;
+            foreach (var rule in _formattingEngine.AllRules)
+            {
+                _formattingEngine.ToggleRuleEnabled(rule, enabled: false);
+            }
+        }
+
+        private void ToggleRule(string name, bool enabled)
+        {
+            var rule = _formattingEngine.AllRules.Where(x => x.Name == name).Single();
+            _formattingEngine.ToggleRuleEnabled(rule, enabled);
         }
 
         protected override async Task<Document> RewriteDocumentAsync(Document document)
         {
-            var solution = await s_formattingEngine.FormatCoreAsync(
+            var solution = await _formattingEngine.FormatCoreAsync(
                 document.Project.Solution,
                 new[] { document.Id },
                 CancellationToken.None);
@@ -59,8 +66,7 @@ class C {
     }
 }";
 
-            var expected = @"// header
-
+            var expected = @"
 internal class C
 {
     private int _field;
@@ -72,6 +78,63 @@ internal class C
 }
 ";
 
+            Verify(text, expected, runFormatter: false);
+        }
+
+        /// <summary>
+        /// Ensure the engine respects the rule map
+        /// </summary>
+        [Fact]
+        public void FieldOnly()
+        {
+            var text = @"
+class C {
+    int field;
+
+    void M() {
+        N(this.field);
+    }
+}";
+
+            var expected = @"
+class C {
+    int _field;
+
+    void M() {
+        N(this._field);
+    }
+}";
+
+            DisableAllRules();
+            ToggleRule(PrivateFieldNamingRule.Name, enabled: true);
+
+            Verify(text, expected, runFormatter: false);
+        }
+
+        [Fact]
+        public void FieldNameExcluded()
+        {
+            var text = @"
+class C {
+    int field;
+
+    void M() {
+        N(this.field);
+    }
+}";
+
+            var expected = @"
+internal class C
+{
+    private int field;
+
+    private void M()
+    {
+        N(field);
+    }
+}";
+
+            ToggleRule(PrivateFieldNamingRule.Name, enabled: false);
             Verify(text, expected, runFormatter: false);
         }
 
@@ -87,8 +150,7 @@ class C {
     }
 }";
 
-            var expected = @"// header
-
+            var expected = @"
 internal class C
 {
     private int _field;
@@ -114,8 +176,7 @@ class C
 #endif 
 }";
 
-            var expected = @"// header
-
+            var expected = @"
 internal class C
 {
 #if DOG
@@ -139,8 +200,7 @@ internal class C
 #endif 
 }";
 
-            var expected = @"// header
-
+            var expected = @"
 internal class C
 {
 #if DOG
@@ -151,7 +211,7 @@ internal class C
 }
 ";
 
-            s_formattingEngine.PreprocessorConfigurations = ImmutableArray.CreateRange(new[] { new[] { "DOG" } });
+            _formattingEngine.PreprocessorConfigurations = ImmutableArray.CreateRange(new[] { new[] { "DOG" } });
             Verify(text, expected, runFormatter: false);
         }
 
@@ -171,8 +231,7 @@ class C
 #endif 
 }";
 
-            var expected = @"// header
-
+            var expected = @"
 internal class C
 {
     private void G()
@@ -210,8 +269,7 @@ class C
 #endif 
 }";
 
-            var expected = @"// header
-
+            var expected = @"
 internal class C
 {
 #if TEST
@@ -227,7 +285,7 @@ internal class C
 }
 ";
 
-            s_formattingEngine.PreprocessorConfigurations = ImmutableArray.CreateRange(new[] { new[] { "TEST" } });
+            _formattingEngine.PreprocessorConfigurations = ImmutableArray.CreateRange(new[] { new[] { "TEST" } });
             Verify(text, expected, runFormatter: false);
         }
 
@@ -251,8 +309,7 @@ internal class C
     }
 }";
 
-            var expected = @"// header
-
+            var expected = @"
 internal class C
 {
     private void M()
@@ -272,6 +329,38 @@ internal class C
 ";
 
             Verify(source, expected, runFormatter: false);
+        }
+
+        [Fact]
+        public void CSharpHeaderCorrectAfterMovingUsings()
+        {
+
+            var source = @"
+namespace Microsoft.Build.UnitTests
+{
+    using System;
+    using System.Reflection;
+ 
+    public class Test
+    {
+        public void RequiredRuntimeAttribute() 
+       {}
+    }
+}";
+            var expected = @"
+using System;
+using System.Reflection;
+
+namespace Microsoft.Build.UnitTests
+{
+    public class Test
+    {
+        public void RequiredRuntimeAttribute()
+        { }
+    }
+}";
+
+            Verify(source, expected);
         }
     }
 }

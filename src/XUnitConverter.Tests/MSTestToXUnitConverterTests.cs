@@ -1,5 +1,6 @@
-﻿// Copyright (c) Microsoft. All rights reserved.
-// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+// See the LICENSE file in the project root for more information.
 
 using System;
 using System.Collections.Generic;
@@ -102,6 +103,42 @@ namespace System.Composition.UnitTests
 ";
             await Verify(text, expected);
         }
+
+        [Fact]
+        public async Task TestPreserveClassDocComments()
+        {
+            string text = @"
+using System;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+namespace System.Composition.UnitTests
+{
+    /// <summary>
+    /// Some sort of doc comment.
+    /// </summary>
+    [TestClass]
+    public class MyTestClass
+    {
+    }
+}
+";
+            var expected = @"
+using System;
+using Xunit;
+
+namespace System.Composition.UnitTests
+{
+    /// <summary>
+    /// Some sort of doc comment.
+    /// </summary>
+    public class MyTestClass
+    {
+    }
+}
+";
+            await Verify(text, expected);
+        }
+
 
         [Fact]
         public async Task TestUpdatesTestMethodAttributes()

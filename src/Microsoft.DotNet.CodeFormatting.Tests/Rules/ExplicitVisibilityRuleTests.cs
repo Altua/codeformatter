@@ -1,5 +1,6 @@
-﻿// Copyright (c) Microsoft. All rights reserved.
-// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+// See the LICENSE file in the project root for more information.
 
 using Microsoft.CodeAnalysis;
 using System;
@@ -859,6 +860,29 @@ Friend Interface I1
     Function F1()
 End Interface";
 
+                Verify(text, expected, runFormatter: false, languageName: LanguageNames.VisualBasic);
+            }
+
+            [Fact]
+            public void Delegates()
+            {
+                var text = @"
+Delegate Function Func1() As Boolean
+
+Friend Class Foo
+
+    Delegate Function Func2() As Boolean
+End Class
+";
+
+                var expected = @"
+Friend Delegate Function Func1() As Boolean
+
+Friend Class Foo
+
+    Public Delegate Function Func2() As Boolean
+End Class
+";
                 Verify(text, expected, runFormatter: false, languageName: LanguageNames.VisualBasic);
             }
 

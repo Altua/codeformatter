@@ -1,5 +1,6 @@
-﻿// Copyright (c) Microsoft. All rights reserved.
-// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+// See the LICENSE file in the project root for more information.
 
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -15,9 +16,12 @@ using System.Threading.Tasks;
 
 namespace Microsoft.DotNet.CodeFormatting.Rules
 {
-    [LocalSemanticRule(LocalSemanticRuleOrder.HasNoIllegalHeadersFormattingRule)]
+    [LocalSemanticRule(HasNoIllegalHeadersFormattingRule.Name, HasNoIllegalHeadersFormattingRule.Description, LocalSemanticRuleOrder.HasNoIllegalHeadersFormattingRule)]
     internal sealed class HasNoIllegalHeadersFormattingRule : CSharpOnlyFormattingRule, ILocalSemanticFormattingRule
     {
+        internal const string Name = "IllegalHeaders";
+        internal const string Description = "Remove illegal headers from files";
+
         // We are going to replace this header with the actual filename of the document being processed
         private const string FileNameIllegalHeader = "<<<filename>>>";
 
@@ -81,6 +85,9 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
             var filePath = Path.Combine(
                 Path.GetDirectoryName(Uri.UnescapeDataString(new UriBuilder(Assembly.GetExecutingAssembly().CodeBase).Path)),
                 "IllegalHeaders.md");
+
+            if (!File.Exists(filePath))
+                return new string[] { };
 
             var illegalHeaders = new HashSet<string>(File.ReadAllLines(filePath).Where(l => !l.StartsWith("##") && !l.Equals("")), StringComparer.OrdinalIgnoreCase);
 

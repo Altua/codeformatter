@@ -1,5 +1,6 @@
-// Copyright (c) Microsoft. All rights reserved.
-// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+// See the LICENSE file in the project root for more information.
 
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -16,10 +17,12 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
     /// <summary>
     /// Mark any fields that can provably be marked as readonly.
     /// </summary>
-    [GlobalSemanticRule(GlobalSemanticRuleOrder.MarkReadonlyFieldsRule,
-        FormattingLevel = FormattingLevel.Agressive)]
+    [GlobalSemanticRule(MarkReadonlyFieldsRule.Name, MarkReadonlyFieldsRule.Description, GlobalSemanticRuleOrder.MarkReadonlyFieldsRule, DefaultRule = false)]
     internal sealed class MarkReadonlyFieldsRule : IGlobalSemanticFormattingRule
     {
+        internal const string Name = "ReadonlyFields";
+        internal const string Description = "Mark fields which can be readonly as readonly";
+
         private readonly SemaphoreSlim _processUsagesLock = new SemaphoreSlim(1, 1);
         private ConcurrentDictionary<IFieldSymbol, bool> _unwrittenWritableFields;
 
@@ -291,7 +294,7 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
                 {
                     var memberAccess = (MemberAccessExpressionSyntax)node.Expression;
                     ISymbol symbol = _semanticModel.GetSymbolInfo(memberAccess.Expression).Symbol;
-                    if (symbol?.Kind == SymbolKind.Field)
+                    if (symbol != null && symbol.Kind == SymbolKind.Field)
                     {
                         var fieldSymbol = (IFieldSymbol)symbol;
                         if (fieldSymbol.Type.TypeKind == TypeKind.Struct)
